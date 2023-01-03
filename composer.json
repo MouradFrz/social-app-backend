@@ -1,0 +1,18 @@
+{
+    "name": "administrator/api",
+    "autoload": {
+        "psr-4": {
+            "Api\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mourad Yaou",
+            "email": "91010360+MouradFrz@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.3",
+        "paragonie/sodium_compat": "^1.19"
+    }
+}
