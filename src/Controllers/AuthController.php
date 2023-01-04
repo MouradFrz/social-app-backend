@@ -119,42 +119,5 @@ class AuthController
         }
         return (array) $decoded;
     }
-    public static function getCurrentUserData()
-    {
-        $id = $_GET["id"];
-        if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
-            http_response_code(400);
-            die;
-        }
-        if (Self::getTokenData()["user"]->id !== (int)$id) {
-            http_response_code(401);
-            die;
-        }
-        try {
-            $pdo = Database::connect();
-            $stmt = $pdo->prepare("SELECT * from users where id = ?");
-            $stmt->execute([$id]);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
-        unset($result[0]["password"]);
-        echo json_encode($result[0]);
-    }
-    public static function uploadPicture()
-    {   
-        $userId =Self::getTokenData()["user"]->id;
-        $ext = explode('.',$_FILES["image"]["name"]);
-        $path = $userId.'.'.$ext[count($ext)-1];
-        move_uploaded_file($_FILES["image"]["tmp_name"], "profile-images/".$path);
-        $pdo = Database::connect();
-        $stmt = $pdo->prepare("UPDATE users SET pfpurl=? WHERE id=?");
-        $stmt->execute([$path,$userId]);
-        if($stmt){
-            echo json_encode([
-                "message"=>"Image updated successfully",
-            ]);
-        }
-        die;
-    }
+    
 }
