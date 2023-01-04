@@ -5,9 +5,10 @@ require '../vendor/autoload.php';
 use Api\Router;
 use Api\Controllers\AuthController;
 use Api\Controllers\AuthHelper;
+use Api\Controllers\UserController;
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PATCH, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Disposition, Content-Type, Content-Length, Accept-Encoding, Authorization");
 header("Content-type:application/json");
 header("Access-Control-Allow-Credentials: true");
@@ -34,15 +35,23 @@ $router->route('/register', function () {
 });
 $router->route("/currentuserdata",function(){
     AuthController::isAuth();
-    AuthController::getCurrentUserData();
+    UserController::getCurrentUserData();
 });
 $router->route("/uploadPicture",function(){
-    // AuthController::isAuth();
-    AuthController::uploadPicture();
+    AuthController::isAuth();
+    UserController::uploadPicture();
+});
+$router->route("/uploadBanner",function(){
+    AuthController::isAuth();
+    UserController::uploadBanner();
 });
 $router->route('/authornot', function () {
     AuthController::isAuth();
     print_r(json_encode(["data"=>AuthController::getTokenData()['user']]));
+});
+$router->route("/updateUser",function(){
+    AuthController::isAuth();
+    UserController::updateUser();
 });
 
 
