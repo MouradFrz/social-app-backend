@@ -5,6 +5,7 @@ require '../vendor/autoload.php';
 use Api\Router;
 use Api\Controllers\AuthController;
 use Api\Controllers\AuthHelper;
+use Api\Controllers\PostController;
 use Api\Controllers\UserController;
 
 header('Access-Control-Allow-Origin: *');
@@ -52,6 +53,14 @@ $router->route('/authornot', function () {
 $router->route("/updateUser",function(){
     AuthController::isAuth();
     UserController::updateUser();
+});
+$router->route("/createPost",function(){
+    AuthController::isAuth();
+    PostController::createPost();
+});
+$router->route("/loadUserPosts",function(){
+    AuthController::isAuth();
+    PostController::loadUserPosts();
 });
 
 

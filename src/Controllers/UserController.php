@@ -98,7 +98,6 @@ class UserController
         $pdo = Database::connect();
         $stmt = $pdo->prepare("UPDATE users SET firstname=?,lastname=?,email=?,bio=? where id=?");
         $stmt->execute([$data->firstname, $data->lastname, $data->email, $data->bio, AuthController::getTokenData()["user"]->id]);
-        echo ";";
         echo json_encode([
             "success"=>true
         ]);
