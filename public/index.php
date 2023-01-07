@@ -62,8 +62,22 @@ $router->route("/loadUserPosts",function(){
     AuthController::isAuth();
     PostController::loadUserPosts();
 });
-
-
+$router->route("/deletePost",function(){
+    AuthController::isAuth();
+    PostController::deletePost();
+});
+$router->route("/likePost",function(){
+    AuthController::isAuth();
+    PostController::likePost();
+});
+$router->route("/unlikePost",function(){
+    AuthController::isAuth();
+    PostController::unlikePost();
+});
+$router->route("/getUserLikes",function(){
+    AuthController::isAuth();
+    PostController::getUserLikes();
+});
 try {
     $router->resolve();
 } catch (Exception $e) {
