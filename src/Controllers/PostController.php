@@ -116,9 +116,19 @@ class PostController
         $userId = AuthController::getTokenData()["user"]->id;
         $list = $_GET["list"];
         $pdo = Database::connect();
-        $stmt = $pdo->prepare("select count(userid) as likecount,postid FROM likes where postid in (?) group by postid;");
-        $stmt->execute([$list]);
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $dataList = explode(',',$list);
+        $query = "select count(userid) as likecount,postid FROM likes where postid in (";
+        foreach($dataList as $key=>$id){
+            if($key!==count($dataList)-1){
+                $query = $query."?,";
+            }else{
+                $query = $query."?)";
+            }
+        }
+        $query = $query." group by postid;";
+        $stmt = $pdo->prepare($query);   
+        $stmt->execute($dataList);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         echo json_encode($result);
     }
 }
