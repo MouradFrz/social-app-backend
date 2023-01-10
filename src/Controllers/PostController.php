@@ -112,4 +112,13 @@ class PostController
 
         echo json_encode($result);
     }
+    public static function loadLikes(){
+        $userId = AuthController::getTokenData()["user"]->id;
+        $list = $_GET["list"];
+        $pdo = Database::connect();
+        $stmt = $pdo->prepare("select count(userid) as likecount,postid FROM likes where postid in (?) group by postid;");
+        $stmt->execute([$list]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($result);
+    }
 }

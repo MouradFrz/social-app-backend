@@ -78,6 +78,11 @@ $router->route("/getUserLikes",function(){
     AuthController::isAuth();
     PostController::getUserLikes();
 });
+$router->route("/loadLikes",function(){
+    AuthController::isAuth();
+    PostController::loadLikes();
+});
+
 try {
     $router->resolve();
 } catch (Exception $e) {
