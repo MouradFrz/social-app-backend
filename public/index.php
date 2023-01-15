@@ -82,7 +82,14 @@ $router->route("/loadLikes",function(){
     AuthController::isAuth();
     PostController::loadLikes();
 });
-
+$router->route("/uploadComment",function(){
+    AuthController::isAuth();
+    PostController::uploadComment();
+});
+$router->route("/loadComments",function(){
+    AuthController::isAuth();
+    PostController::loadComments();
+});
 try {
     $router->resolve();
 } catch (Exception $e) {

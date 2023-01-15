@@ -64,8 +64,8 @@ class PostController
         $imagesStmt = $pdo->prepare("SELECT path FROM postimages where postid=?");
         $imagesStmt->execute([$postId]);
         $imagesToDelete = $imagesStmt->fetchAll(PDO::FETCH_COLUMN);
-        if(!is_null($imagesToDelete[0])){
-            foreach($imagesToDelete as $index=>$img){
+        if (!is_null($imagesToDelete[0])) {
+            foreach ($imagesToDelete as $index => $img) {
                 unlink("./post-images/$img");
             }
         }
@@ -73,37 +73,40 @@ class PostController
         $deleteStmt->execute([$postId]);
         die;
     }
-    public static function likePost(){
+    public static function likePost()
+    {
         $data = json_decode(file_get_contents("php://input"));
         $postId = $data->postId;
         $userId = AuthController::getTokenData()["user"]->id;
         $pdo = Database::connect();
         $canLike = $pdo->prepare("SELECT postid from likes where postid=? AND userid=?");
-        $canLike->execute([$postId,$userId]);
+        $canLike->execute([$postId, $userId]);
         $result = $canLike->fetchAll(PDO::FETCH_COLUMN);
-        if(count($result)){
+        if (count($result)) {
             http_response_code(401);
             die;
         }
         $stmt = $pdo->prepare("INSERT INTO likes values(?,?)");
-        $stmt->execute([$postId,$userId]);
+        $stmt->execute([$postId, $userId]);
     }
-    public static function unlikePost(){
+    public static function unlikePost()
+    {
         $data = json_decode(file_get_contents("php://input"));
         $postId = $data->postId;
         $userId = AuthController::getTokenData()["user"]->id;
         $pdo = Database::connect();
         $canLike = $pdo->prepare("SELECT postid from likes where postid=? AND userid=?");
-        $canLike->execute([$postId,$userId]);
+        $canLike->execute([$postId, $userId]);
         $result = $canLike->fetchAll(PDO::FETCH_COLUMN);
-        if(!count($result)){
+        if (!count($result)) {
             http_response_code(401);
             die;
         }
         $stmt = $pdo->prepare("DELETE FROM likes WHERE postid=? AND userid=?");
-        $stmt->execute([$postId,$userId]);
+        $stmt->execute([$postId, $userId]);
     }
-    public static function getUserLikes(){
+    public static function getUserLikes()
+    {
         $userId = AuthController::getTokenData()["user"]->id;
         $pdo = Database::connect();
         $stmt = $pdo->prepare("SELECT * FROM likes WHERE userid=?");
@@ -112,22 +115,49 @@ class PostController
 
         echo json_encode($result);
     }
-    public static function loadLikes(){
+    public static function loadLikes()
+    {
         $userId = AuthController::getTokenData()["user"]->id;
         $list = $_GET["list"];
         $pdo = Database::connect();
-        $dataList = explode(',',$list);
+        $dataList = explode(',', $list);
         $query = "select count(userid) as likecount,postid FROM likes where postid in (";
-        foreach($dataList as $key=>$id){
-            if($key!==count($dataList)-1){
-                $query = $query."?,";
-            }else{
-                $query = $query."?)";
+        foreach ($dataList as $key => $id) {
+            if ($key !== count($dataList) - 1) {
+                $query = $query . "?,";
+            } else {
+                $query = $query . "?)";
             }
         }
-        $query = $query." group by postid;";
-        $stmt = $pdo->prepare($query);   
+        $query = $query . " group by postid;";
+        $stmt = $pdo->prepare($query);
         $stmt->execute($dataList);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        echo json_encode($result);
+    }
+    public static function uploadComment()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+        $text =  $data->text;
+        $postId =  $data->postid;
+        $userId = AuthController::getTokenData()["user"]->id;
+        $pdo = Database::connect();
+        $stmt = $pdo->prepare("INSERT comments (postid,userid,text) values (?,?,?)");
+        $stmt->execute([$postId, $userId, $text]);
+    }
+    public static function loadComments()
+    {
+        $postId = $_GET["postid"];
+        if (!$postId) {
+            echo $postId;
+            die;
+        }
+        $pdo = Database::connect();
+        $stmt = $pdo->prepare("SELECT firstname,lastname,pfpurl,text,users.id,created_at
+        from comments,users 
+        where postid=? AND comments.userid = users.id
+        ORDER BY created_at DESC");
+        $stmt->execute([$postId]);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         echo json_encode($result);
     }
