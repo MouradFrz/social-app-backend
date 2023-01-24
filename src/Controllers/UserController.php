@@ -9,15 +9,11 @@ use Api\Controllers\AuthController;
 
 class UserController
 {
-    public static function getCurrentUserData()
+    public static function getUserData()
     {
         $id = $_GET["id"];
         if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
             http_response_code(400);
-            die;
-        }
-        if (AuthController::getTokenData()["user"]->id !== (int)$id) {
-            http_response_code(401);
             die;
         }
         try {

@@ -37,9 +37,12 @@ class PostController
     public static function loadUserPosts()
     {
         try {
-            $userId = AuthController::getTokenData()["user"]->id;
+            $userId = $_GET["userid"];
+            $page = $_GET["page"];
+            $postPerPage = 5;
+            $postsCount = $postPerPage*$page;
             $pdo = Database::connect();
-            $stmt = $pdo->prepare("SELECT pfpurl,firstname,lastname,text,created_at,posts.id,path FROM posts,users,postimages WHERE posts.userid=? AND users.id = posts.userid AND postimages.postid = posts.id ORDER BY created_at DESC");
+            $stmt = $pdo->prepare("SELECT pfpurl,firstname,lastname,text,created_at,posts.id,path FROM posts,users,postimages WHERE posts.userid=? AND users.id = posts.userid AND postimages.postid = posts.id ORDER BY created_at DESC LIMIT $postsCount");
             $stmt->execute([$userId]);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($result);
@@ -49,29 +52,33 @@ class PostController
     }
     public static function deletePost()
     {
-        $data = json_decode(file_get_contents("php://input"));
+        try {
+            $data = json_decode(file_get_contents("php://input"));
 
-        $postId = $data->postId;
-        $userId = AuthController::getTokenData()["user"]->id;
-        $pdo = Database::connect();
-        $stmt = $pdo->prepare("SELECT userid FROM posts where id=?");
-        $stmt->execute([$postId]);
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if ($userId !== $result[0]['userid']) {
-            http_response_code(401);
-            die;
-        }
-        $imagesStmt = $pdo->prepare("SELECT path FROM postimages where postid=?");
-        $imagesStmt->execute([$postId]);
-        $imagesToDelete = $imagesStmt->fetchAll(PDO::FETCH_COLUMN);
-        if (!is_null($imagesToDelete[0])) {
-            foreach ($imagesToDelete as $index => $img) {
-                unlink("./post-images/$img");
+            $postId = $data->postId;
+            $userId = AuthController::getTokenData()["user"]->id;
+            $pdo = Database::connect();
+            $stmt = $pdo->prepare("SELECT userid FROM posts where id=?");
+            $stmt->execute([$postId]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($userId !== $result[0]['userid']) {
+                http_response_code(401);
+                die;
             }
+            $imagesStmt = $pdo->prepare("SELECT path FROM postimages where postid=?");
+            $imagesStmt->execute([$postId]);
+            $imagesToDelete = $imagesStmt->fetchAll(PDO::FETCH_COLUMN);
+            if (!is_null($imagesToDelete[0])) {
+                foreach ($imagesToDelete as $index => $img) {
+                    unlink("./post-images/$img");
+                }
+            }
+            $deleteStmt = $pdo->prepare("DELETE FROM posts WHERE id=?");
+            $deleteStmt->execute([$postId]);
+            die;
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
-        $deleteStmt = $pdo->prepare("DELETE FROM posts WHERE id=?");
-        $deleteStmt->execute([$postId]);
-        die;
     }
     public static function likePost()
     {

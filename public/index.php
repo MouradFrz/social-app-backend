@@ -5,6 +5,7 @@ require '../vendor/autoload.php';
 use Api\Router;
 use Api\Controllers\AuthController;
 use Api\Controllers\AuthHelper;
+use Api\Controllers\FriendshipController;
 use Api\Controllers\PostController;
 use Api\Controllers\UserController;
 
@@ -34,9 +35,9 @@ $router->route('/login', function () {
 $router->route('/register', function () {
     AuthController::register();
 });
-$router->route("/currentuserdata",function(){
+$router->route("/userdata",function(){
     AuthController::isAuth();
-    UserController::getCurrentUserData();
+    UserController::getUserData();
 });
 $router->route("/uploadPicture",function(){
     AuthController::isAuth();
@@ -89,6 +90,42 @@ $router->route("/uploadComment",function(){
 $router->route("/loadComments",function(){
     AuthController::isAuth();
     PostController::loadComments();
+});
+$router->route("/loadFriends",function(){
+    AuthController::isAuth();
+    FriendshipController::loadFriends();
+});
+$router->route("/userLoadFriends",function(){
+    AuthController::isAuth();
+    FriendshipController::loadFriendsLoggedIn();
+});
+$router->route("/sentRequests",function(){
+    AuthController::isAuth();
+    FriendshipController::loadFriendRequestsSent();
+});
+$router->route("/receivedRequests",function(){
+    AuthController::isAuth();
+    FriendshipController::loadFriendRequestsReceived();
+});
+$router->route("/sendFriendRequest",function(){
+    AuthController::isAuth();
+    FriendshipController::sendFriendRequest();
+});
+$router->route("/removeFriendRequest",function(){
+    AuthController::isAuth();
+    FriendshipController::removeFriendRequest();
+});
+$router->route("/removeFriend",function(){
+    AuthController::isAuth();
+    FriendshipController::removeFriend();
+});
+$router->route("/declineFriendRequest",function(){
+    AuthController::isAuth();
+    FriendshipController::declineFriendRequest();
+});
+$router->route("/acceptFriendRequest",function(){
+    AuthController::isAuth();
+    FriendshipController::acceptFriendRequest();
 });
 try {
     $router->resolve();
