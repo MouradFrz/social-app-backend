@@ -136,6 +136,8 @@ class PostController
                 $query = $query . "?)";
             }
         }
+        
+        
         $query = $query . " group by postid;";
         $stmt = $pdo->prepare($query);
         $stmt->execute($dataList);

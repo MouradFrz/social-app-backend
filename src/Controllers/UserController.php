@@ -95,8 +95,33 @@ class UserController
         $stmt = $pdo->prepare("UPDATE users SET firstname=?,lastname=?,email=?,bio=? where id=?");
         $stmt->execute([$data->firstname, $data->lastname, $data->email, $data->bio, AuthController::getTokenData()["user"]->id]);
         echo json_encode([
-            "success"=>true
+            "success" => true
         ]);
         die;
+    }
+    public static function searchUser()
+    {
+        $data = $_GET['keyword'];
+        $keywords = explode(" ", $data);
+        $pdo = Database::connect();
+        $query = "SELECT * from users WHERE ";
+
+        foreach ($keywords as $key => $keyword) {
+                $query = $query . "firstname LIKE ? OR ";
+        }
+        foreach ($keywords as $key => $keyword) {
+            if ($key !== count($keywords) - 1) {
+                $query = $query . "lastname LIKE ? OR ";
+            } else {
+                $query = $query . "lastname LIKE ?";
+            }
+        }
+        $dataArray = array_map(function($element){
+            return "%$element%";
+        },[...$keywords, ...$keywords]);
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($dataArray);
+        $resultat = $stmt->fetchAll(PDO::FETCH_OBJ);
+        echo json_encode($resultat);
     }
 }

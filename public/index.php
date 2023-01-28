@@ -127,6 +127,10 @@ $router->route("/acceptFriendRequest",function(){
     AuthController::isAuth();
     FriendshipController::acceptFriendRequest();
 });
+$router->route("/searchUsers",function(){
+    AuthController::isAuth();
+    UserController::searchUser();
+});
 try {
     $router->resolve();
 } catch (Exception $e) {
