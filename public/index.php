@@ -131,6 +131,18 @@ $router->route("/searchUsers",function(){
     AuthController::isAuth();
     UserController::searchUser();
 });
+$router->route("/getUserStats",function(){
+    AuthController::isAuth();
+    UserController::getUserStats();
+});
+$router->route("/loadFeed",function(){
+    AuthController::isAuth();
+    PostController::loadFeed();
+})
+;$router->route("/loadAllFriendRequests",function(){
+    AuthController::isAuth();
+    FriendshipController::loadAllFriendRequests();
+});
 try {
     $router->resolve();
 } catch (Exception $e) {

@@ -107,7 +107,7 @@ class UserController
         $query = "SELECT * from users WHERE ";
 
         foreach ($keywords as $key => $keyword) {
-                $query = $query . "firstname LIKE ? OR ";
+            $query = $query . "firstname LIKE ? OR ";
         }
         foreach ($keywords as $key => $keyword) {
             if ($key !== count($keywords) - 1) {
@@ -116,12 +116,31 @@ class UserController
                 $query = $query . "lastname LIKE ?";
             }
         }
-        $dataArray = array_map(function($element){
+        $dataArray = array_map(function ($element) {
             return "%$element%";
-        },[...$keywords, ...$keywords]);
+        }, [...$keywords, ...$keywords]);
         $stmt = $pdo->prepare($query);
         $stmt->execute($dataArray);
         $resultat = $stmt->fetchAll(PDO::FETCH_OBJ);
         echo json_encode($resultat);
+    }
+    public static function getUserStats()
+    {
+        $id = $_GET['id'];
+        $pdo = Database::connect();
+        $stmt = $pdo->prepare("SELECT count(id) FROM comments where userid=?");
+        $stmt->execute([$id]);
+        $commentCount = $stmt->fetchColumn();
+        $stmt = $pdo->prepare("SELECT count(user1) FROM friendships where user1=? OR user2=?");
+        $stmt->execute([$id, $id]);
+        $friendsCount = $stmt->fetchColumn();
+        $stmt = $pdo->prepare("SELECT count(id) FROM posts where userid=?");
+        $stmt->execute([$id]);
+        $postsCount = $stmt->fetchColumn();
+        echo json_encode([
+            "friends"=>$friendsCount,
+            "posts"=>$postsCount,
+            "comments"=>$commentCount
+        ]);
     }
 }

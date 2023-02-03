@@ -40,7 +40,7 @@ class PostController
             $userId = $_GET["userid"];
             $page = $_GET["page"];
             $postPerPage = 5;
-            $postsCount = $postPerPage*$page;
+            $postsCount = $postPerPage * $page;
             $pdo = Database::connect();
             $stmt = $pdo->prepare("SELECT pfpurl,firstname,lastname,text,created_at,posts.id,path FROM posts,users,postimages WHERE posts.userid=? AND users.id = posts.userid AND postimages.postid = posts.id ORDER BY created_at DESC LIMIT $postsCount");
             $stmt->execute([$userId]);
@@ -136,8 +136,8 @@ class PostController
                 $query = $query . "?)";
             }
         }
-        
-        
+
+
         $query = $query . " group by postid;";
         $stmt = $pdo->prepare($query);
         $stmt->execute($dataList);
@@ -169,5 +169,27 @@ class PostController
         $stmt->execute([$postId]);
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         echo json_encode($result);
+    }
+    public static function loadFeed()
+    {
+        $userId = AuthController::getTokenData()["user"]->id;
+        try {
+            $page = $_GET["page"];
+            $postPerPage = 5;
+            $postsCount = $postPerPage * $page;
+            $pdo = Database::connect();
+            $query = "SELECT pfpurl,firstname,lastname,text,created_at,posts.id,path,userid
+            FROM posts,users,postimages 
+            WHERE (posts.userid IN (SELECT user1 as user from friendships where user2=? UNION SELECT user2 as user from friendships where user1=?)
+             OR posts.userid=?) AND users.id = posts.userid AND postimages.postid = posts.id 
+            ORDER BY created_at DESC
+            LIMIT $postsCount;";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$userId,$userId,$userId]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
 }
