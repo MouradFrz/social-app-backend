@@ -5,6 +5,7 @@ require '../vendor/autoload.php';
 use Api\Router;
 use Api\Controllers\AuthController;
 use Api\Controllers\AuthHelper;
+use Api\Controllers\ChatController;
 use Api\Controllers\FriendshipController;
 use Api\Controllers\PostController;
 use Api\Controllers\UserController;
@@ -138,10 +139,34 @@ $router->route("/getUserStats",function(){
 $router->route("/loadFeed",function(){
     AuthController::isAuth();
     PostController::loadFeed();
-})
-;$router->route("/loadAllFriendRequests",function(){
+});
+$router->route("/loadAllFriendRequests",function(){
     AuthController::isAuth();
     FriendshipController::loadAllFriendRequests();
+});
+$router->route("/loadAllConversations",function(){
+    AuthController::isAuth();
+    ChatController::loadAllConversations();
+});
+$router->route("/loadMessages",function(){
+    AuthController::isAuth();
+    ChatController::loadMessages();
+});
+$router->route("/loadConvoContact",function(){
+    AuthController::isAuth();
+    ChatController::loadConvoContact();
+});
+$router->route("/loadEmptyConvos",function(){
+    AuthController::isAuth();
+    ChatController::loadEmptyConvos();
+});
+$router->route("/canAccessConvo",function(){
+    AuthController::isAuth();
+    ChatController::canAccessConvo();
+});
+$router->route("/sendMessage",function(){
+    AuthController::isAuth();
+    ChatController::sendMessage();
 });
 try {
     $router->resolve();

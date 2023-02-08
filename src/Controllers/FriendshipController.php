@@ -26,13 +26,18 @@ class FriendshipController
     }
     public static function acceptFriendRequest()
     {
-        $senderId = json_decode(file_get_contents("php://input"));
-        $receiverId = AuthController::getTokenData()['user']->id;
-        $pdo = Database::connect();
-        $stmt = $pdo->prepare("DELETE FROM friendrequests WHERE sender=? AND receiver=?");
-        $stmt->execute([$senderId, $receiverId]);
-        $stmt = $pdo->prepare("INSERT INTO friendships values (?,?)");
-        $stmt->execute([$senderId, $receiverId]);
+        try{
+            $senderId = json_decode(file_get_contents("php://input"));
+            $receiverId = AuthController::getTokenData()['user']->id;
+            $pdo = Database::connect();
+            $stmt = $pdo->prepare("DELETE FROM friendrequests WHERE sender=? AND receiver=?");
+            $stmt->execute([$senderId, $receiverId]);
+            $stmt = $pdo->prepare("INSERT INTO friendships (user1,user2) values (?,?)");
+            $stmt->execute([$senderId, $receiverId]);
+        }catch(Exception $e){
+            echo $e->getMessage();
+        }
+    
     }
     public static function declineFriendRequest()
     {
@@ -111,4 +116,5 @@ class FriendshipController
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         echo json_encode($result);
     }
+
 }
