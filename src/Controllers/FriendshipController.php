@@ -26,7 +26,7 @@ class FriendshipController
     }
     public static function acceptFriendRequest()
     {
-        try{
+        try {
             $senderId = json_decode(file_get_contents("php://input"));
             $receiverId = AuthController::getTokenData()['user']->id;
             $pdo = Database::connect();
@@ -34,10 +34,9 @@ class FriendshipController
             $stmt->execute([$senderId, $receiverId]);
             $stmt = $pdo->prepare("INSERT INTO friendships (user1,user2) values (?,?)");
             $stmt->execute([$senderId, $receiverId]);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
-    
     }
     public static function declineFriendRequest()
     {
@@ -49,11 +48,15 @@ class FriendshipController
     }
     public static function removeFriend()
     {
-        $friendId = json_decode(file_get_contents("php://input"));
-        $userId = AuthController::getTokenData()['user']->id;
-        $pdo = Database::connect();
-        $stmt = $pdo->prepare("DELETE FROM friendships WHERE user1=? AND user2=? OR user2=? AND user1=?");
-        $stmt->execute([$friendId, $userId, $friendId, $userId]);
+        try {
+            $friendId = json_decode(file_get_contents("php://input"));
+            $userId = AuthController::getTokenData()['user']->id;
+            $pdo = Database::connect();
+            $stmt = $pdo->prepare("DELETE FROM friendships WHERE user1=? AND user2=? OR user2=? AND user1=?");
+            $stmt->execute([$friendId, $userId, $friendId, $userId]);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
     public static function loadFriendRequestsSent()
     {
@@ -116,5 +119,4 @@ class FriendshipController
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         echo json_encode($result);
     }
-
 }
